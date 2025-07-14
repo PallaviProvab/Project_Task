@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1752477119879,
+    "rollNo": "R-1001",
+    "name": "Ayesha",
+    "age": 22,
+    "address": "Bangalore",
+    "stream": "arts",
+    "subjects": [
+      101,
+      102
+    ]
+  },
+  {
+    "id": 1752477150628,
+    "rollNo": "R-1001",
+    "name": "Pallavi",
+    "age": 23,
+    "address": "Hassan",
+    "stream": "science",
+    "subjects": [
+      101,
+      102
+    ]
+  },
+  {
+    "id": 1752477364557,
+    "rollNo": "R-1001",
+    "name": "Pallavi",
+    "age": 23,
+    "address": "Hassan",
+    "stream": "science",
+    "subjects": [
+      101,
+      102
+    ]
+  },
+  {
+    "id": 1752477726881,
+    "rollNo": "R-1001",
+    "name": "Pallavi",
+    "age": 23,
+    "address": "Hassan",
+    "stream": "science",
+    "subjects": [
+      101,
+      102
+    ]
+  }
+]
