@@ -12,37 +12,37 @@ import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { SubjectsService } from '../subject/subject.service';
-import { MarksService } from '../marks/marks.service';
+
 
 @Controller('students')
 export class StudentsController {
   constructor(
     private readonly studentsService: StudentsService,
-    private readonly subjectsService: SubjectsService,
-    private readonly marksService: MarksService,
+    private readonly subjectsService: SubjectsService
+   
   ) {}
 
-  @Get()
+  @Get('allstudents')
   findAll() {
     return this.studentsService.findAll();
   }
 
-  @Get(':id')
+  @Get('get/:id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.studentsService.findOne(id);
   }
 
-  @Post()
+  @Post('create')
   create(@Body() dto: CreateStudentDto) {
     return this.studentsService.create(dto);
   }
 
-  @Put(':id')
+  @Put('update/:id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStudentDto) {
     return this.studentsService.update(id, dto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.studentsService.remove(id);
   }
@@ -60,12 +60,12 @@ export class StudentsController {
       student.subjects.includes(sub.id),
     );
 
-    const marksRecord = await this.marksService.findOne(id);
+  
 
     return {
       personal: student,
       subjects: selectedSubjects,
-      marks: marksRecord?.marks || {},
+      
     };
   }
 }

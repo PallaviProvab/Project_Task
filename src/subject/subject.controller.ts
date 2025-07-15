@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { SubjectsService } from './subject.service';
 
@@ -14,22 +15,28 @@ import { SubjectsService } from './subject.service';
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
-  // Get all subjects by stream
-  @Get(':stream')
+  // 🔹 Get all subjects (arts + science)
+  @Get('all')
+  getAllSubjects(@Query('sortBy') sortBy: 'id' | 'name' = 'id') {
+    return this.subjectsService.getAllSubjects(sortBy);
+  }
+
+  // 🔹 Get subjects by stream
+  @Get('get/:stream')
   getSubjects(@Param('stream') stream: 'arts' | 'science') {
     return this.subjectsService.getSubjectsByStream(stream);
   }
 
-  // Create subject
-  @Post()
+  // 🔹 Create a subject
+  @Post('create')
   createSubject(
     @Body() body: { stream: 'arts' | 'science'; name: string },
   ) {
     return this.subjectsService.addSubject(body.stream, body.name);
   }
 
-  // Update subject
-  @Put(':stream/:id')
+  // 🔹 Update subject by stream and ID
+  @Put('update/:stream/:id')
   updateSubject(
     @Param('stream') stream: 'arts' | 'science',
     @Param('id', ParseIntPipe) id: number,
@@ -38,8 +45,8 @@ export class SubjectsController {
     return this.subjectsService.updateSubject(stream, id, body.name);
   }
 
-  // Delete subject
-  @Delete(':stream/:id')
+  // 🔹 Delete subject
+  @Delete('delete/:stream/:id')
   deleteSubject(
     @Param('stream') stream: 'arts' | 'science',
     @Param('id', ParseIntPipe) id: number,

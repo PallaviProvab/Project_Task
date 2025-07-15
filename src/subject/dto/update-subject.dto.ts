@@ -1,4 +1,11 @@
+import { IsIn, IsString, IsOptional } from 'class-validator';
+
 export class UpdateSubjectDto {
-  stream: 'arts' | 'science';
-  name: string;
+  @IsOptional()
+  @IsIn(['arts', 'science'])
+  stream?: 'arts' | 'science';
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 }

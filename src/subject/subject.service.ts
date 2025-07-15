@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { CreateSubjectDto } from './dto/create-subject.dto';
-import { UpdateSubjectDto } from './dto/update-subject.dto';
 
 @Injectable()
 export class SubjectsService {
@@ -19,16 +17,46 @@ export class SubjectsService {
 
   async getSubjectsByStream(stream: 'arts' | 'science') {
     const subjects = await this.readSubjects();
-    return subjects[stream] || [];
+    const list = subjects[stream] || [];
+    return list.sort((a: any, b: any) => a.id - b.id);
   }
+async getAllSubjects(sortBy: 'id' | 'name' = 'id') {
+  const subjects = await this.readSubjects();
+  const sortFn =
+    sortBy === 'name'
+      ? (a: any, b: any) => a.name.localeCompare(b.name)
+      : (a: any, b: any) => a.id - b.id;
+
+  return {
+    arts: (subjects.arts || []).sort(sortFn),
+    science: (subjects.science || []).sort(sortFn),
+  };
+}
 
   async addSubject(stream: 'arts' | 'science', subjectName: string) {
     const subjects = await this.readSubjects();
-    const newId = Date.now(); // unique ID
-    const newSubject = { id: newId, name: subjectName };
-
     subjects[stream] = subjects[stream] || [];
-    subjects[stream].push(newSubject);
+    const existingSubjects = subjects[stream];
+
+    // 🚫 Check for duplicate
+    const duplicate = existingSubjects.find(
+      (s: any) => s.name.toLowerCase() === subjectName.toLowerCase(),
+    );
+    if (duplicate) {
+      return { message: `Subject "${subjectName}" already exists in ${stream}` };
+    }
+
+    // ✅ Assign stream-specific ID
+    let baseId = stream === 'arts' ? 101 : 201;
+    let newId = baseId;
+
+    if (existingSubjects.length > 0) {
+      const maxId = Math.max(...existingSubjects.map((s: any) => s.id));
+      newId = maxId + 1;
+    }
+
+    const newSubject = { id: newId, name: subjectName };
+    existingSubjects.push(newSubject);
 
     await this.writeSubjects(subjects);
     return newSubject;
@@ -47,9 +75,17 @@ export class SubjectsService {
 
   async deleteSubject(stream: 'arts' | 'science', id: number) {
     const subjects = await this.readSubjects();
-    subjects[stream] = (subjects[stream] || []).filter((s: any) => s.id !== id);
+    const originalLength = (subjects[stream] || []).length;
+
+    subjects[stream] = (subjects[stream] || []).filter(
+      (s: any) => s.id !== id,
+    );
+
+    if (subjects[stream].length === originalLength) {
+      return { message: 'Subject not found or already deleted' };
+    }
+
     await this.writeSubjects(subjects);
     return { message: 'Subject deleted successfully' };
   }
 }
-
