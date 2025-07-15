@@ -11,6 +11,11 @@ import {
 import { MarksService } from './marks.service';
 import { CreateMarkDto } from './dto/create-marks.dto';
 import { UpdateMarkDto } from './dto/update-marks.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+
+@UseGuards(AuthGuard('jwt'))
 
 @Controller('marks')
 export class MarksController {
@@ -37,6 +42,7 @@ updateMark(
     return this.marksService.getMarksByStudent(id);
   }
 
+  
   @Get('all')
   getAll() {
     return this.marksService.getAllMarks();
