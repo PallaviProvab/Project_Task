@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Put,
+  Delete,
   Body,
   Param,
   ParseIntPipe,
@@ -29,6 +30,8 @@ updateMark(
   return this.marksService.updateMark(studentId, subjectId, dto.marks);
 }
 
+ 
+
   @Get('student/:id')
   getMarksForStudent(@Param('id', ParseIntPipe) id: number) {
     return this.marksService.getMarksByStudent(id);
@@ -37,6 +40,14 @@ updateMark(
   @Get('all')
   getAll() {
     return this.marksService.getAllMarks();
+  }
+
+   @Delete('delete/:studentId/:subjectId')
+  deleteSubjectMarks(
+    @Param('studentId', ParseIntPipe) studentId: number,
+    @Param('subjectId', ParseIntPipe) subjectId: number,
+  ) {
+    return this.marksService.deleteMark(studentId, subjectId);
   }
 }
 

@@ -5,5 +5,15 @@
       "1": 85,
       "2": 90
     }
+  },
+  {
+    "studentId": 1752551816837,
+    "subjectId": 2,
+    "marks": 88
+  },
+  {
+    "studentId": 1752477150628,
+    "subjectId": 1,
+    "marks": 85
   }
 ]
