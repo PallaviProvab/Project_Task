@@ -10,7 +10,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { SubjectsService } from './subject.service';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
@@ -22,7 +25,7 @@ export class SubjectsController {
   }
 
   // 🔹 Get subjects by stream
-  @Get('get/:stream')
+  @Get('streamname/:stream')
   getSubjects(@Param('stream') stream: 'arts' | 'science') {
     return this.subjectsService.getSubjectsByStream(stream);
   }
