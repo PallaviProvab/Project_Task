@@ -8,47 +8,48 @@ import {
   Body,
   ParseIntPipe,
   Query,
+  UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { SubjectsService } from './subject.service';
-import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateSubjectDto } from './dto/create-subject.dto';
+import { UpdateSubjectDto } from './dto/update-subject.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('subjects')
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
-  // 🔹 Get all subjects (arts + science)
   @Get('all')
   getAllSubjects(@Query('sortBy') sortBy: 'id' | 'name' = 'id') {
     return this.subjectsService.getAllSubjects(sortBy);
   }
 
-  // 🔹 Get subjects by stream
   @Get('streamname/:stream')
   getSubjects(@Param('stream') stream: 'arts' | 'science') {
     return this.subjectsService.getSubjectsByStream(stream);
   }
 
-  // 🔹 Create a subject
   @Post('create')
-  createSubject(
-    @Body() body: { stream: 'arts' | 'science'; name: string },
-  ) {
-    return this.subjectsService.addSubject(body.stream, body.name);
+  createSubject(@Body() dto: CreateSubjectDto) {
+    return this.subjectsService.addSubject(dto);
   }
 
-  // 🔹 Update subject by stream and ID
-  @Put('update/:stream/:id')
-  updateSubject(
-    @Param('stream') stream: 'arts' | 'science',
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { name: string },
-  ) {
-    return this.subjectsService.updateSubject(stream, id, body.name);
+ @Put('update/:stream/:id')
+updateSubject(
+  @Param('stream') stream: 'arts' | 'science',
+  @Param('id', ParseIntPipe) id: number,
+  @Body() dto: UpdateSubjectDto,
+) {
+  if (!dto.name) {
+    throw new BadRequestException('Subject name is required');
   }
 
-  // 🔹 Delete subject
+  // Inject stream into DTO before passing to service
+  return this.subjectsService.updateSubject(id, { ...dto, stream });
+}
+
   @Delete('delete/:stream/:id')
   deleteSubject(
     @Param('stream') stream: 'arts' | 'science',

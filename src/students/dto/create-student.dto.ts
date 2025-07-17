@@ -8,6 +8,7 @@ import {
   IsInt,
   Min,
 } from 'class-validator';
+import { Stream } from '../stream.enum';
 
 export class CreateStudentDto {
   @IsString()
@@ -26,11 +27,11 @@ export class CreateStudentDto {
   @IsNotEmpty()
   address: string;
 
-  @IsIn(['arts', 'science'])
-  stream: 'arts' | 'science';
+  @IsIn(Object.values(Stream))
+stream: Stream;
 
   @IsArray()
   @ArrayNotEmpty()
   @IsInt({ each: true })
-  subjectIds: number[];
+  subjectIds?: number[];
 }

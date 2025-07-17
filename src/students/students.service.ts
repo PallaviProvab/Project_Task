@@ -1,64 +1,53 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Student } from './student.entity';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { Stream } from './stream.enum'; 
 
 @Injectable()
 export class StudentsService {
-  private readonly filePath = path.join(__dirname, '..', '..', 'data', 'student.json');
-
-  private async readFile() {
-    try {
-      const data = await fs.readFile(this.filePath, 'utf-8');
-      return JSON.parse(data);
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        await this.writeFile([]);
-        return [];
-      }
-      throw err;
-    }
-  }
-
-  private async writeFile(data: any) {
-    await fs.writeFile(this.filePath, JSON.stringify(data, null, 2));
-  }
+  constructor(
+    @InjectRepository(Student)
+    private readonly studentRepo: Repository<Student>,
+  ) {}
 
   async findAll() {
-    return this.readFile();
+    return this.studentRepo.find({ relations: ['marks'] });
   }
 
   async findOne(id: number) {
-    const students = await this.readFile();
-    const student = students.find((s: any) => s.id === id);
+    const student = await this.studentRepo.findOne({
+      where: { id },
+      relations: ['marks'],
+    });
     if (!student) throw new NotFoundException('Student not found');
     return student;
   }
 
   async create(dto: CreateStudentDto) {
-    const students = await this.readFile();
-    const newStudent = { id: Date.now(), ...dto };
-    students.push(newStudent);
-    await this.writeFile(students);
-    return newStudent;
+    const student = this.studentRepo.create({
+      ...dto,
+      stream: dto.stream as Stream, 
+    });
+    return this.studentRepo.save(student);
   }
 
   async update(id: number, dto: UpdateStudentDto) {
-    const students = await this.readFile();
-    const index = students.findIndex((s: any) => s.id === id);
-    if (index === -1) throw new NotFoundException('Student not found');
-    students[index] = { ...students[index], ...dto };
-    await this.writeFile(students);
-    return students[index];
+    const student = await this.findOne(id);
+    if (!student) throw new NotFoundException('Student not found');
+    await this.studentRepo.update(id, {
+      ...dto,
+      stream: dto.stream as Stream, 
+    });
+    return this.findOne(id);
   }
 
   async remove(id: number) {
-    let students = await this.readFile();
-    const exists = students.some((s: any) => s.id === id);
-    if (!exists) throw new NotFoundException('Student not found');
-    students = students.filter((s: any) => s.id !== id);
-    await this.writeFile(students);
+    const student = await this.findOne(id);
+    if (!student) throw new NotFoundException('Student not found');
+    await this.studentRepo.delete(id);
     return { message: 'Deleted successfully' };
   }
 }
